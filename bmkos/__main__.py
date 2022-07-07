@@ -137,8 +137,6 @@ def pipeline(bam, chrom, gtf, link1, read1, bm, outdir,
              max_read1_ed=6, max_link1_ed=6, min_align_score=200,
              match=5, mismatch = -1, gap_open=4, gap_extend=2, 
              acg_to_n_match=1, t_to_n_match=1):
-    tmpdir = path.join(outdir, 'tmp')
-    path.isdir(tmpdir) or os.mkdir(tmpdir)
     matrix = build_matrix(match, mismatch, acg_to_n_match, t_to_n_match)
     bam = pysam.AlignmentFile(bam, 'r')
     bed = bam2bed(bam.fetch(chrom))
@@ -160,9 +158,6 @@ def pipeline(bam, chrom, gtf, link1, read1, bm, outdir,
     info[['gene', 'gene_name']] = anno[['gene', 'gene_name']]
     # 校正UMI，增加tag到bam文件中
     info['umi'] = info.apply(get_umi, axis=1, args=(matrix,))
-    #cumi = info[np.logical_and(info.is_keep, info.gene != 'NA')][
-    #    ['bc1', 'bc2', 'bc3', 'bc1_corr', 'bc2_corr', 'bc3_corr', 'umi', 'gene']]
-    #cumi['cell'] = cumi['bc1_corr'] + cumi['bc2_corr'] + cumi['bc3_corr']
     cumi = info[np.logical_and(info.is_keep, info.gene != 'NA')][
            ['bc1_corr_idx', 'bc2_corr_idx', 'bc3_corr_idx', 'umi', 'gene']]
     bc_idx = ['bc1_corr_idx', 'bc2_corr_idx', 'bc3_corr_idx']
@@ -205,6 +200,9 @@ def mkdir_or_not(dirs):
 
 def main():
     args = parseArgs()
+    rawdir = path.join(args.outdir, 'raw_feature_bc_matrix')
+    filterdir = path.join(args.outdir, 'filtered_feature_bc_matrix')
+    mkdir_or_not([args.outdir, rawdir, filterdir])
     with open(args.bc1) as f:
         bc1_list = sorted([i.strip() for i in f])
     with open(args.bc2) as f:
@@ -223,7 +221,6 @@ def main():
           link1 + 'N' * bc2_len + 'ACGACTC' +
           'N' * (bc3_len + args.umi_length) +
           'T' * args.polyT_length)
-    print(bm)
     gtf = load_gtf(args.gtf)
 
     p = ProcessPoolExecutor(args.threads)
@@ -254,9 +251,6 @@ def main():
         pbar.update()
     wait(tasks)
 
-    rawdir = path.join(args.outdir, 'raw_feature_bc_matrix')
-    filterdir = path.join(args.outdir, 'filtered_feature_bc_matrix')
-    mkdir_or_not([rawdir, filterdir])
     with open(path.join(rawdir, 'features.tsv'), 'w') as f:
         for i in genes:
             f.write(i+'\n')
