@@ -59,23 +59,23 @@ def filter_whitelist_by_kmers(wl, kmers, kmer_to_bc_index):
     # retain all barcodes that have at least one kmer match with the query barcode
     all_filt_indices = list(set().union(*id_sets))
     filt_wl = [wl[i] for i in all_filt_indices]
-    return filt_wl
+    return filt_wl, all_filt_indices
 
 
 def get_cor_bc(uncor_bc, bc_list, bc_kmer_idx, k=5):
     uncor_kmers = split_seq_into_kmers(uncor_bc, k)
-    filt_bc_list = filter_whitelist_by_kmers(bc_list, uncor_kmers, bc_kmer_idx)
+    filt_bc_list,filt_bc_idx = filter_whitelist_by_kmers(bc_list, uncor_kmers, bc_kmer_idx)
     if not filt_bc_list:
-        return 'N', np.nan, 0
+        return -1, 'N', 100, 0
     if len(filt_bc_list)==1:
-        return filt_bc_list[0], ed.eval(filt_bc_list[0], uncor_bc), np.inf
+        return filt_bc_idx[0]+1, filt_bc_list[0], ed.eval(filt_bc_list[0], uncor_bc), 100
     ed_list = [ed.eval(uncor_bc, i) for i in filt_bc_list]
     ax = np.argpartition(ed_list, 1)
     #bc_match_idx = ed_list[ax[0]] < ed_list[ax[1]] and ax[0]  or ax[1]
     bc_match_ed = ed_list[ax[0]]
     bc_match = filt_bc_list[ax[0]]
     next_match_diff = ed_list[ax[1]]-ed_list[ax[0]]
-    return ax[0], bc_match, bc_match_ed, next_match_diff
+    return filt_bc_idx[ax[0]]+1, bc_match, bc_match_ed, next_match_diff
 
 
 def add_bc_info(df, bc_list, bc_kmer_idx, name):
@@ -86,6 +86,7 @@ def add_bc_info(df, bc_list, bc_kmer_idx, name):
     bc_corr_idx = bc_corr + '_idx'
     x = df[name].str.replace('-', '').apply(get_cor_bc, True, (bc_list, bc_kmer_idx))
     bc_info = pd.DataFrame(x.to_list(), columns=[bc_corr_idx, bc_corr, match_ed, match_ed_diff], index=x.index)
+    bc_info = bc_info.astype({bc_corr_idx:np.int32, match_ed:np.int32, match_ed_diff:np.int32})
     df = pd.concat([df, bc_info], axis=1)
     #keepreads = keepreads[np.logical_and(keepreads[match_ed] <= 6, keepreads[match_ed_diff] >= 1)]
     #keepreads.index = range(keepreads.shape[0])

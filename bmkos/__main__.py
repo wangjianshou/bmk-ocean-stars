@@ -204,11 +204,11 @@ def main():
     filterdir = path.join(args.outdir, 'filtered_feature_bc_matrix')
     mkdir_or_not([args.outdir, rawdir, filterdir])
     with open(args.bc1) as f:
-        bc1_list = sorted([i.strip() for i in f])
+        bc1_list = [i.strip() for i in f]
     with open(args.bc2) as f:
-        bc2_list = sorted([i.strip() for i in f])
+        bc2_list = [i.strip() for i in f]
     with open(args.bc3) as f:
-        bc3_list = sorted([i.strip() for i in f])
+        bc3_list = [i.strip() for i in f]
     bc1_kmer_idx = load_whitelist(bc1_list, k=5)
     bc2_kmer_idx = load_whitelist(bc2_list, k=5)
     bc3_kmer_idx = load_whitelist(bc3_list, k=5)
