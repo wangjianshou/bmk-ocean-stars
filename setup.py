@@ -12,7 +12,7 @@ setup(
     packages = ["bmkos"],
     python_requires='>=3.8',
     install_requires = ['numpy', 'scipy', 'pandas', 'tqdm', 'setuptools >= 18.0',
-                        'editdistance', 'pysam', 'parasail', 'bioframe'
+                        'editdistance', 'pysam', 'parasail', 'bioframe >= 0.3.0'
                         ],
 
     author = "Wang Jianshou",
