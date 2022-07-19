@@ -27,7 +27,7 @@ def bam2bed(bam):
     record = [(i.reference_name, i.reference_start,
                i.reference_end, i.query_name, i.mapq,
                i.is_reverse and '-' or '+')
-               for i in bam]
+               for i in bam if i.is_mapped]
     #bam.close()
     return pd.DataFrame(record, columns=cols)
 

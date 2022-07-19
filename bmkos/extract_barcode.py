@@ -99,7 +99,7 @@ def add_bc_info(df, bc_list, bc_kmer_idx, name):
 #barcode的组合序列bm在比对过程中会出现 有N被clip的read设置为极端情况，
 # 目前测试的数据这种情况比较少，因此会直接去除，也就是barcode和umi会被设置为N
 # 后续会实现更优方案：设置被clip的N的阈值，低于3个N，可以正常提取
-
+'''
 def bc_align(sam, read1, link1, bm, matrix, gap_open=2, gap_extend=4):
     #sam = pysam.AlignmentFile(sam, 'r')
     tmp = []
@@ -139,5 +139,64 @@ def bc_align(sam, read1, link1, bm, matrix, gap_open=2, gap_extend=4):
     info.set_index('id', inplace=True)
     #sam.close()
     return info
+'''
 
+def bc_align(sam, read1, link1, ssp, bm, matrix, gap_open=2, gap_extend=4):
+    #sam = pysam.AlignmentFile(sam, 'r')
+    tmp = []
+    for i in sam:
+        readseq = i.get_forward_sequence()
+        revreadseq = readseq.translate(str.maketrans('ATCG', 'TAGC'))[::-1]
+        
+        seq = readseq[:250]
+        rseq = readseq[-250:]
+        rseq = rseq.translate(str.maketrans('ATCG', 'TAGC'))[::-1]
+        frd = parasail.sw_trace(seq, bm, gap_open, gap_extend, matrix)
+        rev = parasail.sw_trace(rseq, bm, gap_open, gap_extend, matrix)
+        
+        frd_ssp_align = parasail.sw_trace(readseq, ssp, gap_open, gap_extend, matrix)
+        rev_ssp_align = parasail.sw_trace(revreadseq, ssp, gap_open, gap_extend, matrix)
+        #align = (frd.score >= rev.score) and frd or rev
+        if frd.score >= rev.score:
+            align = frd
+            direction = '+'
+        else:
+            align = rev
+            ssp_direction = '-'
+        if frd_ssp_align.score >= rev_ssp_align.score:
+            ssp_align = frd_ssp_align
+            ssp_direction = '+'
+        else:
+            ssp_align = rev_ssp_align
+            ssp_direction = '-'
+        nidx = [i for i in range(len(align.traceback.ref)) if align.traceback.ref[i]=='N']
+        if len(nidx) == 17+19+19+12:
+            r1 = align.traceback.query[:nidx[0]]
+            l1 = align.traceback.query[nidx[16]+1:nidx[17]]
+            bc1 = align.traceback.query[nidx[0]:nidx[16]+1]
+            bc2 = align.traceback.query[nidx[17]:nidx[35]+1]
+            bc3 = align.traceback.query[nidx[36]:nidx[54]+1]
+            rawumi = align.traceback.query[nidx[55]:nidx[66]+1]
+        else:  # 有N被clip的read设置为极端情况，后续会考虑其他方案
+            r1 = l1 = 'N' * 20
+            bc1, bc2, bc3, rawumi = 'N', 'N', 'N', 'N'
+        editread1 = ed.eval(read1, r1)
+        editlink1 = ed.eval(link1, l1)
+        edit = ed.eval(align.traceback.query, align.traceback.ref)
+        #tmp.append([i.query_name,  bc1, bc2, bc3, rawumi, i.is_mapped, align.score, align.traceback.comp,
+        #            align.traceback.ref, align.traceback.query,
+        #            align.query, frd.score, rev.score,
+        #            edit, editread1, editlink1, direction])
+        tmp.append([i.query_name,  bc1, bc2, bc3, rawumi, i.is_mapped, align.score,
+                    align.query, edit, editread1, editlink1, ssp_align.score,])
+    #keep_cols = ['id', 'bc1', 'bc2', 'bc3', 'rawumi', 'is_mapped', 'score', 'comp',
+    #             'ref', 'query', 'rawquery', 'frdscore', 'revscore', 'edit',
+    #             'editread1', 'editlink1', 'direction']
+    keep_cols = ['id', 'bc1', 'bc2', 'bc3', 'rawumi', 'is_mapped', 'score',
+                 'rawquery', 'edit', 'editread1', 'editlink1', 'ssp_score',]
+    info = pd.DataFrame(tmp, columns=keep_cols)
+    info.set_index('id', inplace=True)
+    info['is_full_length'] =  np.logical_and(info.score>250, info.ssp_score>100)
+    #sam.close()
+    return info
 
