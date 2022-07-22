@@ -6,6 +6,9 @@ from bmkos.anno_gene import load_gtf, bam2bed, assign_gene
 from bmkos.cluster_umi import get_umi, correct_umis
 from bmkos.gene_expression import tags_bam, filter_tags_bam, get_expression
 
+from jinja2 import FileSystemLoader, Environment
+
+
 
 def qc(bam, info):
     qcd = dict()
@@ -14,12 +17,12 @@ def qc(bam, info):
     numUnmapped = baminfo.unmapped
     baminfo.close()
     numReads = numMapped + numUnmapped
-    qcd['Reads with Valid Barcode'] = '{:.2f}%'.format(info.is_keep.sum()/numReads*100)
-    qcd['Reads Mapped to Genome'] = '{:.2f}%'.format(numMapped/numReads*100)
-    qcd['Reads Mapped to Transcriptome'] = '{:.2f}%'.format((info.gene!='NA').sum()/numReads*100)
-    qcd['Reads Mapped to Transcriptome And with Valid Barcode'] =  \
+    qcd['ReadswithValidBarcode'] = '{:.2f}%'.format(info.is_keep.sum()/numReads*100)
+    qcd['ReadsMappedtoGenome'] = '{:.2f}%'.format(numMapped/numReads*100)
+    qcd['ReadsMappedtoTranscriptome'] = '{:.2f}%'.format((info.gene!='NA').sum()/numReads*100)
+    qcd['ReadsMappedtoTranscriptomeAndwithValidBarcode'] =  \
             '{:.2f}%'.format(np.logical_and(info.gene!='NA', info.is_keep).sum()/numReads*100)
-    qcd['Full Length Rate'] = '{:.2f}%'.format(info.is_full_length.sum()/info.shape[0]*100)
+    qcd['FullLengthRate'] = '{:.2f}%'.format(info.is_full_length.sum()/info.shape[0]*100)
 
     return qcd
 
@@ -77,3 +80,20 @@ def pipeline(bam, chrom, gtf, link1, read1, ssp, bm, outdir,
     #info.to_csv(path.join(tmpdir, chrom+'.'+'info.tsv'), sep='\t', header=True, index=True)
     #exp_raw.to_csv(path.join(tmpdir, chrom+'.'+'raw.matrix.tsv'), sep='\t', header=True, index=True)
     return info, exp_raw
+
+
+def generate_report(qcd):
+    loader = FileSystemLoader(searchpath='report')
+    enviroment = Environment(loader=loader)
+    tpl = enviroment.get_template('template.html')
+    return tpl.reader(qcd)
+
+
+
+
+
+
+
+
+
+

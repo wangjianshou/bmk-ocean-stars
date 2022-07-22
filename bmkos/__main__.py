@@ -50,6 +50,15 @@ def parseArgs(args=None):
         help='save tags bam or not'
     )
     parser.add_argument(
+            '--product', '-pd',
+            required=False, default='cell', choices=['cell', 'spatial'],
+            help=''
+    )
+    parser.add_argument(
+            '--expect-cells', '-e', default=3000, required=False,
+            type=int, help='number of expected cells'
+    )
+    parser.add_argument(
             '--link1', '-l1',
             required=False, default='GTCATCGCAGAGTACTACGT',
             help=''
@@ -153,6 +162,8 @@ def mkdir_or_not(dirs):
     return dirs
 
 
+
+
 def main():
     args = parseArgs()
     rawdir = path.join(args.outdir, 'raw_feature_bc_matrix')
@@ -235,6 +246,16 @@ def main():
         with BytesIO() as tmpf:
             mmwrite(tmpf, raw_exp, 'BMK full-length RNA expression')
             f.write(tmpf.getvalue())
+    if args.product == 'cell':
+        from bmkcc import cells
+        matrix, filtered_matrix = cells.callcells(rawdir, args.outdir, args.expect_cells)
+        cell_barcodes = filtered_matrix.bcs[:]
+        counts_per_bc = matrix.get_counts_per_bc()
+        raw_barcodes = matrix.bcs[:]
+        cellfig = barcode_umi_plot(counts_per_bc, raw_barcodes, cell_barcodes, args.outdir)
+        qcd['cellfig'] = cellfig
+
+
 
 
 if __name__=='__main__':
