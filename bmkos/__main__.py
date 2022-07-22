@@ -1,4 +1,5 @@
 import os, sys, argparse, pickle
+import gzip
 import pysam
 import parasail
 import numpy as np
@@ -6,7 +7,10 @@ import pandas as pd
 
 from os import path
 from tqdm import tqdm
-from scipy import sparse, io
+from scipy import sparse
+from scipy.io import mmwrite
+from io import BytesIO
+
 from concurrent.futures import ProcessPoolExecutor, as_completed, wait
 
 #sys.path.append(path.dirname(path.abspath(__file__)))
@@ -212,10 +216,14 @@ def main():
         pbar.update()
     wait(tasks)
 
-    with open(path.join(rawdir, 'features.tsv'), 'w') as f:
-        for i in genes:
-            f.write(i+'\n')
-    with open(path.join(rawdir, 'barcodes.tsv'), 'w') as f:
+    features = gtf[['attribute', 'gene_name']].set_index('attribute').loc[genes, :].reset_index()
+    features['exp'] = "Gene Expression"
+    with gzip.open(path.join(rawdir, 'features.tsv.gz'), 'wb') as f:
+        with BytesIO() as tmpf:
+            features.to_csv(tmpf, header=False, index=False, sep='\t')
+            f.write(tmpf.getvalue())
+
+    with gzip.open(path.join(rawdir, 'barcodes.tsv.gz'), 'wt') as f:
         for i in barcodes:
             f.write(i+'\n')
     tmp = [i.result() for i in tasks]
@@ -223,7 +231,10 @@ def main():
         pickle.dump(tmp, f)
 
     raw_exp = sparse.hstack(tmp)
-    io.mmwrite(path.join(rawdir, 'matrix.mtx'), raw_exp, 'BMK full-length RNA expression')
+    with gzip.open(path.join(rawdir, 'matrix.mtx.gz'), 'wb') as f:
+        with BytesIO() as tmpf:
+            mmwrite(tmpf, raw_exp, 'BMK full-length RNA expression')
+            f.write(tmpf.getvalue())
 
 
 if __name__=='__main__':
