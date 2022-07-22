@@ -200,7 +200,7 @@ def main():
     info = pd.concat([i.result()[0] for i in tasks], axis=0)
 
     qcd = qc(args.bam, info)
-    with open(path.join(args.outdir, 'qc.txt'), 'w') as f:
+    with open(path.join(args.outdir, 'summary_qc.txt'), 'w') as f:
         for i in qcd.keys():
             f.write(i+'\t'+qcd[i]+'\n')
 
