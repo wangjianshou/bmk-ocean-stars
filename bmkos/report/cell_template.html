@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BMK Gene</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        nav.navbar-bmk{
+            background-color: darkblue;
+        }
+        table tr:last-child{
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+
+
+
+</head>
+<body  style="height:15">
+
+<nav class="navbar navbar-expand-sm navbar-bmk navbar-dark fixed-top justify-content-center">
+    <a class="navbar-brand" href="#"><h3> BMKLogo BMK Ocean Stars</h3></a>
+</nav>
+
+<div class="container" style="margin-top:80px">
+    <div class='row'>
+        <div class='col'>
+            <h3>Sampleid</h3>
+        </div>
+    </div>
+</div>
+
+
+<div class='container'>
+
+	<ul class='nav nav-tabs' role='tablist'>
+
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#summary">summary</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#analysis">analysis</a>
+        </li>
+
+	</ul>
+
+    <div class="tab-content">
+        <div id="summary" class="container tab-pane active"><br>
+            <div class="row">
+                <div class="col-5">
+                    <div class="row">
+                        <div class="card col-12">
+                            <div class="card-body">
+                                <div class="container">
+                                    <div class="card-title text-success text-center"><h4>{{NumberofCells}}</h4></div>
+                                    <div class="card-text text-center">Estimated Number of Cells</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class="row">
+                         <div class="card col-12">
+                             <div class="card-body">
+                                 <div class="row">
+                                     <div class="container col-6">
+                                         <div class="card-title text-success text-center"><h4>{{MeanReads}}</h4></div>
+                                         <div class="card-text text-center">Mean Reads per Cell</div>
+                                     </div>
+                                     <div class="container col-6">
+                                         <div class="card-title text-success text-center"><h4>{{MedianReads}}</h4></div>
+                                         <div class="card-text text-center">Median Genes per Cell</div>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                    <br>
+
+                    <div class="row">
+                        <div class="card col-12">
+                            <div class="card-body">
+                                <div class="card-title"><h4>Sequencing</h4></div>
+                                <table class="table table-hover table-sm small">
+                                    <tbody>
+                                        <tr><td>Number of Reads</td><td class="text-right">{{ NumberofReads }}</td></tr>
+                                        <tr><td>Reads with Valid Barcodes</td><td class="text-right">{{ReadswithValidBarcodes}}</td></tr>
+                                        <tr><td>Reads with Valid UMIs</td><td class="text-right">{{ReadswithValidUMI}}</td></tr>
+                                        <tr><td>Number of Bases</td><td class="text-right">{{ NumberofBases }}</td></tr>
+                                        <tr><td>Bases with Valid Barcodes</td><td class="text-right">{{BaseswithValidBarcodes}}</td></tr>
+                                        <tr><td>Bases with Valid UMIs</td><td class="text-right">{{BaseswithValidUMI}}</td></tr>
+                                        <tr><td>Sequencing Saturation</td><td class="text-right">{{SequencingSaturation}}</td></tr>
+                                        <tr><td>Q7 Bases in Barcode</td><td class="text-right">{{Q7BasesinBarcode}}</td></tr>
+                                        <tr><td>Q7 Bases in RNA Read</td><td class="text-right">{{Q7BasesinRNARead}}</td></tr>
+                                        <tr><td>Q7 Bases in UMI</td><td class="text-right">{{Q7BasesinUMI}}</td></tr>
+                                        <tr><td>Full Length Rate</td><td class="text-right">{{FullLengthRate}}</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class="row">
+                        <div class="card col-12">
+                            <div class="card-body">
+                                <div class="card-title"><h4>Mapping</h4></div>
+                                <table class="table table-hover table-sm small"> <!--style="font-size:13px"-->
+                                    <tbody>
+                                        <tr><td>Reads Mapped to Genome</td><td class="text-right">{{ReadsMappedtoGenome}}</td></tr>
+                                        <tr><td>Reads Mapped Confidently to Genome</td><td class="text-right">{{ReadsMappedConfidentlytoGenome}}</td></tr>
+                                        <tr><td>Reads Mapped Confidently to Intergenic Regions</td><td class="text-right">{{ReadsMappedConfidentlytoIntergenicRegions}}</td></tr>
+                                        <tr><td>Reads Mapped Confidently to Transcriptome</td><td class="text-right">{{ReadsMappedConfidentlytoTranscriptome}}</td></tr>
+                                        <tr><td>Bases Mapped to Genome</td><td class="text-right">{{BasesMappedtoGenome}}</td></tr>
+                                        <tr><td>Bases Mapped Confidently to Genome</td><td class="text-right">{{BasesMappedConfidentlytoGenome}}</td></tr>
+                                        <tr><td>Bases Mapped Confidently to Intergenic Regions</td><td class="text-right">{{BasesMappedConfidentlytoIntergenicRegions}}</td></tr>
+                                        <tr><td>Bases Mapped Confidently to Transcriptome</td><td class="text-right">{{BasesMappedConfidentlytoTranscriptome}}</td></tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-6 offset-1">
+                    <div class="row">
+                        <div class="card col-12">
+                        <div class="card-title"><h4>Cells</h4></div>
+                        <div id='divPlotly'></div>
+
+                        <table class="table table-hover table-sm small">
+                            <tbody>
+                                <tr><td>Estimated Number of Cells</td><td class="text-right">{{EstimatedNumberofCells}}</td></tr>
+                                <tr><td>Fraction Reads in Cells</td><td class="text-right">{{FractionReadsinCells}}</td></tr>
+                                <tr><td>Mean Reads per Cell</td><td class="text-right">{{MeanReadsperCell}}</td></tr>
+                                <tr><td>Median UMI Counts per Cell</td><td class="text-right">{{MedianUMICountsperCell}}</td></tr>
+                                <tr><td>Median Genes per Cell</td><td class="text-right">{{MedianGenesperCell}}</td></tr>
+                                <tr><td>Total Genes Detected</td><td class="text-right">{{TotalGenesDetected}}</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                    <br>
+
+                    <div class="row">
+                        <div class="card col-12">
+                        <div class="card-title"><h4>Sample</h4></div>
+                        <table class="table table-hover table-sm small">
+                            <tbody>
+                                <tr><td>Sample ID</td><td class="text-right">{{SampleID|default("sampleid")}}</td></tr>
+                                <tr><td>Sample Description</td><td class="text-right">{{SampleDesc}}</td></tr>
+                                <tr><td>Pipeline Version</td><td class="text-right">{{version}}</td></tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var plotly_data = {{cellfig}};
+            Plotly.react('divPlotly', plotly_data.data, plotly_data.layout);
+        </script>
+
+        <div id="analysis" class="container tab-pane fade"><br>
+            <p>analysis result</p>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

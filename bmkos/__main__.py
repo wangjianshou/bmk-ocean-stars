@@ -1,4 +1,5 @@
-import os, sys, argparse, pickle
+import os, sys, pickle
+import argparse
 import gzip
 import pysam
 import parasail
@@ -14,7 +15,7 @@ from io import BytesIO
 from concurrent.futures import ProcessPoolExecutor, as_completed, wait
 
 #sys.path.append(path.dirname(path.abspath(__file__)))
-from bmkos.pipeline import pipeline, qc
+from bmkos.pipeline import pipeline, qc, process_unmap
 from bmkos.extract_barcode import load_whitelist, bc_align, add_bc_info, build_matrix
 from bmkos.anno_gene import load_gtf, bam2bed, assign_gene
 from bmkos.cluster_umi import get_umi, correct_umis
@@ -134,12 +135,12 @@ def parseArgs(args=None):
     )
     parser.add_argument(
         "--max_read1_ed",
-        type=int, default=8,
+        type=int, default=6,
         help="Max edit distance with the read1 sequence",
     )
     parser.add_argument(
         "--max_link1_ed",
-        type=int, default=8,
+        type=int, default=4,
         help="Max edit distance with the link1 sequence",
     )
     parser.add_argument(
@@ -184,14 +185,14 @@ def main():
     link1 = args.link1
     read1 = args.read1[-args.read1_length:]
     bm = (read1 + 'N' * bc1_len +
-          link1 + 'N' * bc2_len + 'ACGACTC' +
+          link1 + 'N' * bc2_len + 'CGACTC' +
           'N' * (bc3_len + args.umi_length) +
           'T' * args.polyT_length)
     gtf = load_gtf(args.gtf)
 
     p = ProcessPoolExecutor(args.threads)
     baminfo = pysam.AlignmentFile(args.bam, 'r')
-    numReads = baminfo.mapped + baminfo.unmapped
+    #numReads = baminfo.mapped + baminfo.unmapped
     chroms = baminfo.references
     baminfo.close()
 
@@ -199,17 +200,28 @@ def main():
                 p.submit(pipeline, args.bam, i, gtf, link1, read1, args.ssp, bm, args.outdir,
                          bc1_list, bc2_list, bc3_list, bc1_kmer_idx,
                          bc2_kmer_idx, bc3_kmer_idx, is_save_bam = False,
-                         max_read1_ed=6, max_link1_ed=6, min_align_score=200,
-                         match=5, mismatch = -1, gap_open=args.gap_open, gap_extend=args.gap_extend,
-                         acg_to_n_match=1, t_to_n_match=1)
+                         max_read1_ed=args.max_read1_ed, max_link1_ed=args.max_link1_ed,
+                         min_align_score=args.min_align_score, match=args.match,
+                         mismatch = args.mismatch, gap_open=args.gap_open, gap_extend=args.gap_extend,
+                         acg_to_n_match=args.acg_to_n_match, t_to_n_match=args.t_to_n_match)
                 for i in chroms
             ]
     pbar = tqdm(total=len(tasks), desc='process chorms:')
     for i in as_completed(tasks):
         pbar.update()
+
+    matrix = build_matrix(args.match, args.mismatch, args.acg_to_n_match, args.t_to_n_match)
+    bam = pysam.AlignmentFile(args.bam, 'r')
+    unmap_info = bc_align(bam.fetch('*'), read1, link1, args.ssp, bm, matrix)
+    unmap_info = process_unmap(unmap_info, bc1_list, bc2_list, bc3_list,
+                  bc1_kmer_idx, bc2_kmer_idx, bc3_kmer_idx,
+                  args.min_align_score, args.max_read1_ed, args.max_link1_ed)
+    bam.close()
+
     wait(tasks)
     info = pd.concat([i.result()[0] for i in tasks], axis=0)
-
+    info = pd.concat([info, unmap_info], axis=0)
+    info.to_csv(path.join(args.outdir, 'reads_info.tsv'), index=True, header=True, sep='\t')
     qcd = qc(args.bam, info)
     with open(path.join(args.outdir, 'summary_qc.txt'), 'w') as f:
         for i in qcd.keys():

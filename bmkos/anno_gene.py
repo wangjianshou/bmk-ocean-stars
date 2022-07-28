@@ -36,7 +36,7 @@ def bam2bed(bam):
 
 def assign_gene(bed, gtf):
     df = bf.overlap(bed, gtf, how="left", suffixes=("_bed", "_gtf"),
-                return_overlap=True, return_index=True)
+                    return_overlap=True, return_index=True)
     
     df = df[["index_bed", "name_bed", "chrom_bed", "score_bed",
     "strand_gtf", "attribute_gtf", "overlap_start",

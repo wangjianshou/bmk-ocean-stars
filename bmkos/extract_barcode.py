@@ -188,12 +188,14 @@ def bc_align(sam, read1, link1, ssp, bm, matrix, gap_open=2, gap_extend=4):
         #            align.query, frd.score, rev.score,
         #            edit, editread1, editlink1, direction])
         tmp.append([i.query_name,  bc1, bc2, bc3, rawumi, i.is_mapped, align.score,
-                    align.query, edit, editread1, editlink1, ssp_align.score,])
+                    align.query, edit, editread1, editlink1, ssp_align.score,
+                    sum(i.query_qualities), i.query_length])
     #keep_cols = ['id', 'bc1', 'bc2', 'bc3', 'rawumi', 'is_mapped', 'score', 'comp',
     #             'ref', 'query', 'rawquery', 'frdscore', 'revscore', 'edit',
     #             'editread1', 'editlink1', 'direction']
     keep_cols = ['id', 'bc1', 'bc2', 'bc3', 'rawumi', 'is_mapped', 'score',
-                 'rawquery', 'edit', 'editread1', 'editlink1', 'ssp_score',]
+                 'rawquery', 'edit', 'editread1', 'editlink1', 'ssp_score',
+                 'qscore', 'qlen']
     info = pd.DataFrame(tmp, columns=keep_cols)
     info.set_index('id', inplace=True)
     info['is_full_length'] =  np.logical_and(info.score>250, info.ssp_score>100)
