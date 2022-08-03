@@ -198,7 +198,7 @@ def bc_align(sam, read1, link1, ssp, bm, matrix, gap_open=2, gap_extend=4):
                  'qscore', 'qlen']
     info = pd.DataFrame(tmp, columns=keep_cols)
     info.set_index('id', inplace=True)
-    info['is_full_length'] =  np.logical_and(info.score>250, info.ssp_score>100)
+    info['is_full_length'] =  np.logical_and(info.score>200, info.ssp_score>100)
     #sam.close()
     return info
 

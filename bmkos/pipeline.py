@@ -35,7 +35,7 @@ def qc(info):
     #qcd['ReadswithValidUMI'] =
 
     qcd['NumberofBases'] = ':d'.format(info.qlen.sum())
-    qcd['BaseswithValidBarcodes'] = '{:.2f}%'.format(numMappedBases/numBases*100)
+    qcd['BaseswithValidBarcodes'] = '{:.2f}%'.format(/numBases*100)
     #qcd['BaseswithValidUMI'] =
 
     qcd['MeanLength'] = '{:d}'.format(int(info.qlen.sum() / numReads))
@@ -65,6 +65,7 @@ def qc(info):
         '{:.2f}%'.format(info[np.logical_and(info.gene != 'NA', info.is_keep)].qlen.sum()/numBases * 100)
 
     return qcd
+
 
 
 

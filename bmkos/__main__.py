@@ -15,11 +15,12 @@ from io import BytesIO
 from concurrent.futures import ProcessPoolExecutor, as_completed, wait
 
 #sys.path.append(path.dirname(path.abspath(__file__)))
-from bmkos.pipeline import pipeline, qc, process_unmap
+from bmkos.pipeline import pipeline, qc, process_unmap,generate_report
 from bmkos.extract_barcode import load_whitelist, bc_align, add_bc_info, build_matrix
 from bmkos.anno_gene import load_gtf, bam2bed, assign_gene
 from bmkos.cluster_umi import get_umi, correct_umis
 from bmkos.gene_expression import tags_bam, filter_tags_bam, get_expression
+from plotQC import plotLen, plotQscore
 
 #read结构: read1-bc1-link1-bc2-ACGACTC-bc3-umi-polyT-CDS-ssp
 
@@ -265,8 +266,12 @@ def main():
         counts_per_bc = matrix.get_counts_per_bc()
         raw_barcodes = matrix.bcs[:]
         cellfig = barcode_umi_plot(counts_per_bc, raw_barcodes, cell_barcodes, args.outdir)
-        qcd['cellfig'] = cellfig
+        qcd['cellfig'] = cellfig.to_json()
 
+    qcd['ReadsLengthDistribution'] = plotLen(info.qlen).to_json()
+    qcd['ReadsQscoreDistribution'] = plotQscore(info.qscore/info.qlen)
+    with open(path.join(args.outdir, 'web_summary.html'), 'w') as f:
+        f.write(generate_report(qcd))
 
 
 
