@@ -1,1 +1,2 @@
 include bmkos/sequence/*
+include bmkos/report/*

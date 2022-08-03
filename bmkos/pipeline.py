@@ -1,6 +1,7 @@
 import os
 import pysam
 import numpy as np
+from os import path
 
 from bmkos.extract_barcode import load_whitelist, bc_align, add_bc_info, build_matrix
 from bmkos.anno_gene import load_gtf, bam2bed, assign_gene
@@ -35,13 +36,13 @@ def qc(info):
     #qcd['ReadswithValidUMI'] =
 
 
-    qcd['NumberofBases'] = '{:d}'.format(info.qlen.sum())
-    qcd['BaseswithValidBarcodes'] = '{:.2f}%'.format(/numBases*100)
+    qcd['NumberofBases'] = '{:d}'.format(numBases)
+    qcd['BaseswithValidBarcodes'] = '{:.2f}%'.format(info[info.is_keep].qlen.sum()/numBases*100)
     #qcd['BaseswithValidUMI'] =
 
     qcd['MeanLength'] = '{:d}'.format(int(info.qlen.sum() / numReads))
     qcd['N50'] = '{:d}'.format(calN50(info.qlen, numBases))
-    qcd['MeanQscore'] = '{:.2f}'.format(info.qscore.sum() / numReads)
+    qcd['MeanQscore'] = '{:.2f}'.format(info.qscore.sum() / numBases)
 
 
 
@@ -157,10 +158,10 @@ def pipeline(bam, chrom, gtf, link1, read1, ssp, bm, outdir,
 
 
 def generate_report(qcd):
-    loader = FileSystemLoader(searchpath='report')
+    loader = FileSystemLoader(searchpath=path.join(path.dirname(__file__), 'report'))
     enviroment = Environment(loader=loader)
     tpl = enviroment.get_template('cell_template.html')
-    return tpl.reader(qcd)
+    return tpl.render(qcd)
 
 
 
