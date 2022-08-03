@@ -53,11 +53,11 @@ def parseArgs(args=None):
     )
     parser.add_argument(
             '--product', '-pd',
-            required=False, default='cell', choices=['cell', 'spatial'],
+            required=False, default='spatial', choices=['cell', 'spatial'],
             help=''
     )
     parser.add_argument(
-            '--expect-cells', '-e', default=3000, required=False,
+            '--expect-cells', '-ec', default=3000, required=False,
             type=int, help='number of expected cells'
     )
     parser.add_argument(
@@ -149,6 +149,11 @@ def parseArgs(args=None):
         type=int, default=200,
         help="Min align score between bm  and reads",
     )
+    parser.add_argument(
+        "--mstep", '-ms',
+        type = int, default = 1000,
+        help = "process Matrix each step",
+    )
     args = parser.parse_args(args)
     return args
 def each_exp(cumi, barcodes, genes, start, step=1000):
@@ -223,7 +228,7 @@ def main():
     info = pd.concat([i.result()[0] for i in tasks], axis=0)
     info = pd.concat([info, unmap_info], axis=0)
     info.to_csv(path.join(args.outdir, 'reads_info.tsv'), index=True, header=True, sep='\t')
-    qcd = qc(args.bam, info)
+    qcd = qc(info)
     with open(path.join(args.outdir, 'summary_qc.txt'), 'w') as f:
         for i in qcd.keys():
             f.write(i+'\t'+qcd[i]+'\n')
@@ -233,8 +238,11 @@ def main():
     barcodes = cumi.cell.unique()
     genes = gtf.attribute.unique()
     cumi.set_index('cell', inplace=True)
+    cumi.to_csv(path.join(args.outdir, 'reads_cumi.tsv'), index=True, header=True, sep='\t')
     p = ProcessPoolExecutor(args.threads)
-    tasks = [p.submit(each_exp, cumi, barcodes, genes, i, 1000) for i in tqdm(range(0, barcodes.shape[0], 1000))]
+    #tasks = [p.submit(each_exp, cumi, barcodes, genes, i, 1000) for i in tqdm(range(0, barcodes.shape[0], 1000))]
+    tasks = [p.submit(each_exp, cumi, barcodes, genes, i, args.mstep) for i in
+             tqdm(range(0, barcodes.shape[0], args.mstep))]
     pbar = tqdm(total=len(tasks), desc='process expression matrix:')
     for i in as_completed(tasks):
         pbar.update()

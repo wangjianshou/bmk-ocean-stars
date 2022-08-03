@@ -26,15 +26,16 @@ def qc(info):
     #baminfo.close()
     #numReads = numMapped + numUnmapped
     numReads = info.shape[0]
-    numMapped = info.is_map.sum()
+    numMapped = info.is_mapped.sum()
     numBases = info.qlen.sum()
-    numMappedBases = info[info.is_map].qlen.sum()
+    numMappedBases = info[info.is_mapped].qlen.sum()
 
     qcd['NumberofReads'] = '{:d}'.format(numReads)
     qcd['ReadswithValidBarcode'] = '{:.2f}%'.format(info.is_keep.sum()/numReads*100)
     #qcd['ReadswithValidUMI'] =
 
-    qcd['NumberofBases'] = ':d'.format(info.qlen.sum())
+
+    qcd['NumberofBases'] = '{:d}'.format(info.qlen.sum())
     qcd['BaseswithValidBarcodes'] = '{:.2f}%'.format(/numBases*100)
     #qcd['BaseswithValidUMI'] =
 
@@ -158,7 +159,7 @@ def pipeline(bam, chrom, gtf, link1, read1, ssp, bm, outdir,
 def generate_report(qcd):
     loader = FileSystemLoader(searchpath='report')
     enviroment = Environment(loader=loader)
-    tpl = enviroment.get_template('template.html')
+    tpl = enviroment.get_template('cell_template.html')
     return tpl.reader(qcd)
 
 
