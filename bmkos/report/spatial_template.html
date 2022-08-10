@@ -30,7 +30,7 @@
 <div class="container" style="margin-top:80px">
     <div class='row'>
         <div class='col'>
-            <h3>Sampleid</h3>
+            <h3>{{Sampleid}}</h3>
         </div>
     </div>
 </div>
@@ -58,8 +58,8 @@
                         <div class="card col-12">
                             <div class="card-body">
                                 <div class="container">
-                                    <div class="card-title text-success text-center"><h4>{{NumberofCells}}</h4></div>
-                                    <div class="card-text text-center">Estimated Number of Cells</div>
+                                    <div class="card-title text-success text-center"><h4>{{NumberofSpotsUnderTissue}}</h4></div>
+                                    <div class="card-text text-center">Number of Spots Under Tissue</div>
                                 </div>
                             </div>
                         </div>
@@ -72,11 +72,11 @@
                                  <div class="row">
                                      <div class="container col-6">
                                          <div class="card-title text-success text-center"><h4>{{MeanReads}}</h4></div>
-                                         <div class="card-text text-center">Mean Reads per Cell</div>
+                                         <div class="card-text text-center">Mean Reads per Spot</div>
                                      </div>
                                      <div class="container col-6">
                                          <div class="card-title text-success text-center"><h4>{{MedianReads}}</h4></div>
-                                         <div class="card-text text-center">Median Genes per Cell</div>
+                                         <div class="card-text text-center">Median Genes per Spot</div>
                                      </div>
                                  </div>
                              </div>
@@ -132,28 +132,7 @@
 
                 <div class="col-6 offset-1">
 
-                    <div class="row">
-                        <div class="card col-12">
-                            <!-- <div class="card-title"><h4>Cells</h4></div> -->
-                            <div id='figBarcodeUMIDistribution'></div>
 
-                            <table class="table table-hover table-sm">
-                                <tbody>
-                                <tr><td>Estimated Number of Cells</td><td class="text-right">{{EstimatedNumberofCells}}</td></tr>
-                                <tr><td>Fraction Reads in Cells</td><td class="text-right">{{FractionReadsinCells}}</td></tr>
-                                <tr><td>Mean Reads per Cell</td><td class="text-right">{{MeanReadsperCell}}</td></tr>
-                                <tr><td>Median UMI Counts per Cell</td><td class="text-right">{{MedianUMICountsperCell}}</td></tr>
-                                <tr><td>Median Genes per Cell</td><td class="text-right">{{MedianGenesperCell}}</td></tr>
-                                <tr><td>Total Genes Detected</td><td class="text-right">{{TotalGenesDetected}}</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <br>
-                    <script>
-                        var plotly_data = {{cellfig}};
-                        Plotly.react('figBarcodeUMIDistribution', plotly_data.data, plotly_data.layout);
-                    </script>
 
                     <!--
                     <div class="row">
@@ -224,12 +203,20 @@
 
 
 
-        <div id="analysis" class="container tab-pane fade"><br>
-            <p>nalysis result</p>
+        <div id="Analysis" class="container tab-pane fade"><br>
+            <p>analysis result</p>
         </div>
     </div>
 
 </div>
+
+
+
+
+
+
+
+
 
 
 

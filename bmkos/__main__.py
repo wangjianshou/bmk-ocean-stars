@@ -39,7 +39,7 @@ def parseArgs(args=None):
     parser.add_argument(
         '--outdir', '-o',
         required=False, default='.',
-        help='gtf file'
+        help='sampleid and output direction'
     )
     parser.add_argument(
             '--threads', '-th',
@@ -278,8 +278,9 @@ def main():
 
     qcd['ReadsLengthDistribution'] = plotLen(info.qlen).to_json()
     qcd['ReadsQscoreDistribution'] = plotQscore(info.qscore/info.qlen).to_json()
+    qcd['Smapleid'] = args.outdir
     with open(path.join(args.outdir, 'web_summary.html'), 'w') as f:
-        f.write(generate_report(qcd))
+        f.write(generate_report(qcd, args.product))
 
 
 

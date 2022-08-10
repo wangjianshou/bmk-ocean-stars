@@ -32,7 +32,7 @@ def qc(info):
     numMappedBases = info[info.is_mapped].qlen.sum()
 
     qcd['NumberofReads'] = '{:d}'.format(numReads)
-    qcd['ReadswithValidBarcode'] = '{:.2f}%'.format(info.is_keep.sum()/numReads*100)
+    qcd['ReadswithValidBarcodes'] = '{:.2f}%'.format(info.is_keep.sum()/numReads*100)
     #qcd['ReadswithValidUMI'] =
 
 
@@ -157,10 +157,13 @@ def pipeline(bam, chrom, gtf, link1, read1, ssp, bm, outdir,
     return info, exp_raw
 
 
-def generate_report(qcd):
+def generate_report(qcd, product='cell'):
     loader = FileSystemLoader(searchpath=path.join(path.dirname(__file__), 'report'))
     enviroment = Environment(loader=loader)
-    tpl = enviroment.get_template('cell_template.html')
+    if product=='cell':
+        tpl = enviroment.get_template('cell_template.html')
+    elif product=='spatial':
+        tpl = enviroment.get_template('spatial_template.html')
     return tpl.render(qcd)
 
 
