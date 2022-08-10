@@ -10,10 +10,10 @@ setup(
     name = "bmk-ocean-stars",
     version = 'v0.6.0',
     packages = ["bmkos"],
-    python_requires='>=3.8',
+    python_requires='>=3.8, <=3.9',
     install_requires = ['numpy', 'scipy', 'pandas', 'tqdm', 'setuptools >= 18.0',
                         'editdistance', 'pysam', 'parasail', 'bioframe >= 0.3.0',
-                        'jinja2', 'plotly'],
+                        'jinja2', 'plotly', 'bmkcc >= 0.2'],
 
     author = "Wang Jianshou",
     author_email = "wangjs@biomarker.com.cn",
@@ -31,7 +31,7 @@ setup(
               'Development Status :: 3 - Alpha',
               'Operating System :: POSIX :: Linux',
               'Programming Language :: Python :: 3.9',
-              'Programming Language :: Python :: 3.10',
+              'Programming Language :: Python :: 3.8',
               #'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
         ],
 )

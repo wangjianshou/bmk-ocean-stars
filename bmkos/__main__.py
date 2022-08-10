@@ -39,7 +39,7 @@ def parseArgs(args=None):
     parser.add_argument(
         '--outdir', '-o',
         required=False, default='.',
-        help='sampleid and output direction'
+        help='output direction'
     )
     parser.add_argument(
             '--threads', '-th',
@@ -53,12 +53,16 @@ def parseArgs(args=None):
     )
     parser.add_argument(
             '--product', '-pd',
-            required=False, default='spatial', choices=['cell', 'spatial'],
+            required=False, default='cell', choices=['cell', 'spatial'],
             help=''
     )
     parser.add_argument(
             '--expect-cells', '-ec', default=3000, required=False,
             type=int, help='number of expected cells'
+    )
+    parser.add_argument(
+            '--sampleid', '-id', default="SampleID", required=False,
+             help='sample id in web summary'
     )
     parser.add_argument(
             '--link1', '-l1',
@@ -275,10 +279,12 @@ def main():
         raw_barcodes = matrix.bcs[:]
         cellfig = barcode_umi_plot(counts_per_bc, raw_barcodes, cell_barcodes, args.outdir)
         qcd['cellfig'] = cellfig.to_json()
+        cellqc = cells.cellQC(filtered_matrix)
+        qcd.update(cellqc)
 
     qcd['ReadsLengthDistribution'] = plotLen(info.qlen).to_json()
     qcd['ReadsQscoreDistribution'] = plotQscore(info.qscore/info.qlen).to_json()
-    qcd['Smapleid'] = args.outdir
+    qcd['Smapleid'] = args.sampleid
     with open(path.join(args.outdir, 'web_summary.html'), 'w') as f:
         f.write(generate_report(qcd, args.product))
 

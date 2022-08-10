@@ -1,6 +1,14 @@
 # Install
-本地安装: pip install ./bmk-ocean-stars  
-在线安装: pip install bmk-ocean-stars  
+
+
+The simplest way of installing bmk-ocean-stars is by using pip:  
+```python
+pip install Cython
+pip install numpy
+pip install bmk-ocean-stars  
+```
+
+
 
 # Usage
-查看帮助：`bmkos --help`
+`bmkos --help`

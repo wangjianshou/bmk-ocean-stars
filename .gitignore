@@ -3,3 +3,5 @@ old
 .idea
 example
 .DS_Store
+*.egg-info
+build
