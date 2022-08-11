@@ -278,7 +278,7 @@ def main():
         cell_barcodes = filtered_matrix.bcs[:]
         counts_per_bc = matrix.get_counts_per_bc()
         raw_barcodes = matrix.bcs[:]
-        cellfig =cells.barcode_umi_plot(counts_per_bc, raw_barcodes, cell_barcodes, args.outdir)
+        cellfig =cells.barcode_umi_plot(counts_per_bc, raw_barcodes, cell_barcodes)
         qcd['cellfig'] = cellfig.to_json()
         cellqc = cells.cellQC(filtered_matrix)
         qcd.update(cellqc)
