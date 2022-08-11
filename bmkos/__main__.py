@@ -233,9 +233,10 @@ def main():
     info = pd.concat([info, unmap_info], axis=0)
     info.to_csv(path.join(args.outdir, 'reads_info.tsv'), index=True, header=True, sep='\t')
     qcd = qc(info)
-    with open(path.join(args.outdir, 'summary_qc.txt'), 'w') as f:
-        for i in qcd.keys():
-            f.write(i+'\t'+qcd[i]+'\n')
+
+    #with open(path.join(args.outdir, 'summary_qc.txt'), 'w') as f:
+    #    for i in qcd.keys():
+    #        f.write(i+'\t'+qcd[i]+'\n')
 
     cumi = [i.result()[1] for i in tasks]
     cumi = pd.concat(cumi, axis=0)
