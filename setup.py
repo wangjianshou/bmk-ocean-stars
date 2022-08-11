@@ -13,7 +13,7 @@ setup(
     python_requires='>=3.8, <=3.9',
     install_requires = ['numpy', 'scipy', 'pandas', 'tqdm', 'setuptools >= 18.0',
                         'editdistance', 'pysam', 'parasail', 'bioframe >= 0.3.0',
-                        'jinja2', 'plotly', 'bmkcc >= 0.2'],
+                        'jinja2', 'plotly', 'bmk-cell-calling >= 0.2'],
 
     author = "Wang Jianshou",
     author_email = "wangjs@biomarker.com.cn",
