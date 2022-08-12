@@ -7,8 +7,9 @@ from scipy import io, sparse
 
 def tags_bam(bam, out_bam, info):
     bam = pysam.AlignmentFile(bam, 'r')
+    chrbam = (chrom is None) and bam or bam.fetch(chrom)
     out_bam = pysam.AlignmentFile(out_bam, 'wb', template=bam)
-    for i in bam:
+    for i in chrbam:
         aread = info.loc[i.qname, :]
         tags = (
             ('R1', aread.bc1, 'Z'),

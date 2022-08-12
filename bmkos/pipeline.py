@@ -99,14 +99,14 @@ def process_unmap(unmap_info, bc1_list, bc2_list, bc3_list,
 
 
 
-def pipeline(bam, chrom, gtf, link1, read1, ssp, bm, outdir,
+def pipeline(bamf, chrom, gtf, link1, read1, ssp, bm, outdir,
              bc1_list, bc2_list, bc3_list, bc1_kmer_idx,
              bc2_kmer_idx, bc3_kmer_idx, is_save_bam = False,
              max_read1_ed=6, max_link1_ed=4, min_align_score=200,
              match=5, mismatch = -1, gap_open=4, gap_extend=2, 
              acg_to_n_match=1, t_to_n_match=1):
     matrix = build_matrix(match, mismatch, acg_to_n_match, t_to_n_match)
-    bam = pysam.AlignmentFile(bam, 'r')
+    bam = pysam.AlignmentFile(bamf, 'r')
     bed = bam2bed(bam.fetch(chrom))
     anno = assign_gene(bed, gtf)
     info = bc_align(bam.fetch(chrom), read1, link1, ssp, bm, matrix, gap_open, gap_extend)
@@ -141,7 +141,7 @@ def pipeline(bam, chrom, gtf, link1, read1, ssp, bm, outdir,
     if is_save_bam:
         outbam = path.join(outdir, 'bam')
         path.isdir(outbam) or os.mkdir(outbam)
-        tags_bam(bam, path.join(outbam, chrom+'.bmk_tags.sorted.bam'), info)
+        tags_bam(bamf, path.join(outbam, chrom+'.bmk_tags.sorted.bam'), info, chrom=chrom)
         #filter_tags_bam(bam, path.join(outdir, chrom+'.bmk_filter_tags.sorted.bam'), info)
     # 计算表达矩阵
     exp_raw = cumi.groupby(['cell', 'gene'])['umi_corr'].nunique().reset_index()

@@ -209,7 +209,7 @@ def main():
     tasks = [
                 p.submit(pipeline, args.bam, i, gtf, link1, read1, args.ssp, bm, args.outdir,
                          bc1_list, bc2_list, bc3_list, bc1_kmer_idx,
-                         bc2_kmer_idx, bc3_kmer_idx, is_save_bam = False,
+                         bc2_kmer_idx, bc3_kmer_idx, is_save_bam = args.save_bam,
                          max_read1_ed=args.max_read1_ed, max_link1_ed=args.max_link1_ed,
                          min_align_score=args.min_align_score, match=args.match,
                          mismatch = args.mismatch, gap_open=args.gap_open, gap_extend=args.gap_extend,
