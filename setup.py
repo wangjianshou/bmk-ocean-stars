@@ -8,7 +8,7 @@ def readme():
 
 setup(
     name = "bmk-ocean-stars",
-    version = 'v0.6.3',
+    version = 'v0.6.6',
     packages = ["bmkos"],
     python_requires='>=3.8, <=3.9',
     install_requires = ['numpy', 'scipy', 'pandas', 'tqdm', 'setuptools >= 18.0',
