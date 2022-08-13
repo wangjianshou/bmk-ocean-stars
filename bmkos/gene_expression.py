@@ -5,10 +5,11 @@ import pandas as pd
 from os import path
 from scipy import io, sparse
 
-def tags_bam(bam, out_bam, info):
+def tags_bam(bam, out_bam, info, chrom=None):
     bam = pysam.AlignmentFile(bam, 'r')
+    chrbam = (chrom is None) and bam or bam.fetch(chrom)
     out_bam = pysam.AlignmentFile(out_bam, 'wb', template=bam)
-    for i in bam:
+    for i in chrbam:
         aread = info.loc[i.qname, :]
         tags = (
             ('R1', aread.bc1, 'Z'),

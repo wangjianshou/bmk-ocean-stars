@@ -57,6 +57,10 @@ def parseArgs(args=None):
             help=''
     )
     parser.add_argument(
+        '--debug', '-dg', action='store_true',
+        help='debug mode output more: '
+    )
+    parser.add_argument(
             '--expect-cells', '-ec', default=3000, required=False,
             type=int, help='number of expected cells'
     )
@@ -209,7 +213,7 @@ def main():
     tasks = [
                 p.submit(pipeline, args.bam, i, gtf, link1, read1, args.ssp, bm, args.outdir,
                          bc1_list, bc2_list, bc3_list, bc1_kmer_idx,
-                         bc2_kmer_idx, bc3_kmer_idx, is_save_bam = False,
+                         bc2_kmer_idx, bc3_kmer_idx, is_save_bam = args.save_bam,
                          max_read1_ed=args.max_read1_ed, max_link1_ed=args.max_link1_ed,
                          min_align_score=args.min_align_score, match=args.match,
                          mismatch = args.mismatch, gap_open=args.gap_open, gap_extend=args.gap_extend,
@@ -231,7 +235,8 @@ def main():
     wait(tasks)
     info = pd.concat([i.result()[0] for i in tasks], axis=0)
     info = pd.concat([info, unmap_info], axis=0)
-    info.to_csv(path.join(args.outdir, 'reads_info.tsv'), index=True, header=True, sep='\t')
+    if args.debug:
+        info.to_csv(path.join(args.outdir, 'reads_info.tsv'), index=True, header=True, sep='\t')
     qcd = qc(info)
 
     #with open(path.join(args.outdir, 'summary_qc.txt'), 'w') as f:
@@ -243,7 +248,8 @@ def main():
     barcodes = cumi.cell.unique()
     genes = gtf.attribute.unique()
     cumi.set_index('cell', inplace=True)
-    cumi.to_csv(path.join(args.outdir, 'reads_cumi.tsv'), index=True, header=True, sep='\t')
+    if args.debug:
+        cumi.to_csv(path.join(args.outdir, 'reads_cumi.tsv'), index=True, header=True, sep='\t')
     p = ProcessPoolExecutor(args.threads)
     #tasks = [p.submit(each_exp, cumi, barcodes, genes, i, 1000) for i in tqdm(range(0, barcodes.shape[0], 1000))]
     tasks = [p.submit(each_exp, cumi, barcodes, genes, i, args.mstep) for i in
@@ -264,8 +270,9 @@ def main():
         for i in barcodes:
             f.write(i+'\n')
     tmp = [i.result() for i in tasks]
-    with open(path.join(args.outdir, 'cache_raw_expression.pkl'), 'wb') as f:
-        pickle.dump(tmp, f)
+    if args.debug:
+        with open(path.join(args.outdir, 'cache_raw_expression.pkl'), 'wb') as f:
+            pickle.dump(tmp, f)
 
     raw_exp = sparse.hstack(tmp)
     with gzip.open(path.join(rawdir, 'matrix.mtx.gz'), 'wb') as f:

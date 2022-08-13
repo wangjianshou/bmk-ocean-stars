@@ -8,12 +8,12 @@ def readme():
 
 setup(
     name = "bmk-ocean-stars",
-    version = 'v0.6.6',
+    version = 'v0.6.9-alpha',
     packages = ["bmkos"],
-    python_requires='>=3.8, <=3.9',
+    python_requires='>=3.8, <3.10',
     install_requires = ['numpy', 'scipy', 'pandas', 'tqdm', 'setuptools >= 18.0',
                         'editdistance', 'pysam', 'parasail', 'bioframe >= 0.3.0',
-                        'jinja2', 'plotly', 'bmk-cell-calling >= 0.2'],
+                        'jinja2', 'plotly', 'bmk-cell-calling >= 0.2.1'],
 
     author = "Wang Jianshou",
     author_email = "wangjs@biomarker.com.cn",
