@@ -42,7 +42,7 @@ def qc(info):
 
     qcd['MeanLength'] = '{:d}'.format(int(info.qlen.sum() / numReads))
     qcd['N50'] = '{:d}'.format(calN50(info.qlen, numBases))
-    qcd['MeanQscore'] = '{:.2f}'.format(info.qscore.sum() / numBases)
+    #qcd['MeanQscore'] = '{:.2f}'.format(info.qscore.sum() / numBases)
 
 
 
@@ -147,11 +147,16 @@ def pipeline(bamf, chrom, gtf, link1, read1, ssp, bm, outdir,
     exp_raw = cumi.groupby(['cell', 'gene'])['umi_corr'].nunique().reset_index()
     #exp_raw.to_csv(path.join(tmpdir, chrom+'.'+'cumi.tsv'), sep='\t', header=True, index=True)
     #exp_raw = pd.pivot_table(exp_raw, index=['gene'], columns=['cell'], values='umi_corr', fill_value=0)
-    keep_cols = ['is_mapped', 'score','edit', 'editread1','editlink1', 'is_keep',
-                 'bc1_match_ed','bc2_match_ed','bc3_match_ed','gene',
-                 'gene_name','umi_corr', 'ssp_score', 'is_full_length', 'qscore', 'qlen'
+    keep_cols = ['gene', 'gene_name','umi_corr', 'bc1_corr_idx', 'bc2_corr_idx', 'bc3_corr_idx',
+                 'is_mapped', 'score','edit', 'editread1', 'is_keep',
+                 #'bc1_match_ed','bc2_match_ed','bc3_match_ed', 'editlink1',
+                 'ssp_score', 'is_full_length', 'qscore', 'qlen'
                  ]
     info = info[keep_cols]
+    bc_idx = ['bc1_corr_idx', 'bc2_corr_idx', 'bc3_corr_idx']
+    info[bc_idx] = info[bc_idx].astype('str')
+    info['cell'] = 'bc1_' + info.bc1_corr_idx + '-bc2_' + info.bc2_corr_idx + '-bc3_' + info.bc3_corr_idx
+
     #info.to_csv(path.join(tmpdir, chrom+'.'+'info.tsv'), sep='\t', header=True, index=True)
     #exp_raw.to_csv(path.join(tmpdir, chrom+'.'+'raw.matrix.tsv'), sep='\t', header=True, index=True)
     return info, exp_raw
