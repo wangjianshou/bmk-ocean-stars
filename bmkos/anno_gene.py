@@ -15,7 +15,7 @@ def load_gtf(gtf):
         df = df[df["feature"] == "gene"]
         df['gene_name'] = df.attribute.str.extract(r'gene_name \"(.*?)\";')
         df['attribute'] = df.attribute.str.extract(r'gene_id \"(.*?)\";')
-
+    df['chrom'] = df.chrom.astype(str)
     return df
 
 
